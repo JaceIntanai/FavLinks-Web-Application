@@ -1,0 +1,64 @@
+{% extends "registration/layout.html" %}
+{% block head %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+</style>
+{% endblock %}
+{%block title %}Dashboard{% endblock%}
+{% block body %}
+{% if message %}
+    <div>{{ message }}</div>
+{% endif %}
+<form class="add" action="{% url 'add_url_detail' %}" method="GET">
+    {% csrf_token %}
+    <button name="add_url" type="submit" value="" title="Click here to add favorite urls">ADD FAVORITE URL</button>
+</form>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Favorites URL</th>
+        <th>Title</th>
+        <th>Categories</th>
+        <th>Tags</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    {% for url in urls%}
+    <tr>
+        <td>{{ url.id }}</td>
+        <td>{{ url.url }}</td>
+        <td>{{ url.title }}</td>
+        <td>{{ categories }}</td>
+        <td>{{ tags }}</td>
+        <td>
+            <form class="edit" action="{% url 'edit_url_detail' %}" method="POST">
+                {% csrf_token %}
+                <button name="edit_url" type="submit" value="{{ url.id }}" title="Click here to edit ">EDIT</button>
+            </form>
+        </td>
+        <td>
+            <form class="delete" action="{% url 'delete_url' %}" method="POST">
+                {% csrf_token %}
+                <button name="delete_url_id" type="submit" value="{{ url.id }}" title="Click here to delete ">DELETE</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

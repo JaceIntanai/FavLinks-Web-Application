@@ -1,0 +1,32 @@
+{% extends "registration/layout.html" %}
+{%block title %}ADD URL{% endblock%}
+{% block body %}
+<div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color:red;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if message %}
+            <div style="color:red;">{{ message }}</div>
+    {% endif %}
+    <form action="{% url 'add_url' %}" method="POST" class="input-form" >
+        {% csrf_token %}
+        <label for="title">Title:</label><br>
+        <input type="text" placeholder="fill your title name" id="title" name="title" required><br>
+        <label for="url">URL:</label><br>
+        <input type="url" placeholder="fill your URL" id="url" name="url" required><br>
+        <select name="categories" id="categories" multiple="multiple">
+            {% for categorie in categories %}
+                <option value="{{ categorie }}">{{ categorie }}</option>
+            {% endfor %}
+        </select><br>
+        <select name="tags" id="tags" multiple="multiple">
+            {% for tag in tags %}
+                <option value="{{ tag }}">{{ tag }}</option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Add</button>
+    </form>
+</div>
+{% endblock %}
