@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -15,41 +17,27 @@ def register(request) :
         mail = request.POST["mail"]
         password = request.POST["password"]
         confirm_password = request.POST["cpassword"]
-        print('username: ', username)
-        print('password: ', password)
-        print('cpassword: ', confirm_password)
-        print('first_name: ', first_name)
-        print('last_name: ', last_name)
-        print('email: ', mail)
+
         if username and first_name and last_name and password and confirm_password :
-            print('step1')
             user = UserProfile.objects.filter(username=username)
-            print(user)
             if not user:
                 if password == confirm_password :
                     new_user = User.objects.create_user(username=username, password=password,)
                     try:
                         validate_password(password=password, user=new_user)
                     except ValidationError as err:
-                        print('fail password: ', err)
                         new_user.delete()
                         return render(request, 'registration/register.html', {'messages': err})
                     
                     UserProfile.objects.create(username=username,first_name=first_name,last_name=last_name,e_mail=mail)
                     auth_user = authenticate(request, username=username, password=password)
                     if auth_user is not None:
-                        print('login success')
                         login(request, auth_user)
                         return redirect('dashboard')
                 else :
-                    print('password not match')
                     return render(request, 'registration/register.html', {'message': 'Password Not Match'})
             else :
-                auth_user = authenticate(request, username=username, password=password)
-                if auth_user is not None:
-                    login(request, auth_user)
-                    return redirect('home')
-
+                return render(request, 'registration/register.html', {'message': 'Username Already used'})
         else :
             return render(request, 'registration/register.html', {'message': 'Please Complete Registration Form.'})
         
@@ -68,3 +56,10 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("login"))
+
+def dashboard(request):
+    return render(request, 'registration/dashboard.html', {'message': 'Dashboard'})
