@@ -16,6 +16,9 @@
     tr:nth-child(even) {
       background-color: #dddddd;
     }
+    * {
+        box-sizing: border-box;
+    }
 </style>
 {% endblock %}
 {%block title %}FAVLINKS{% endblock%}
@@ -34,6 +37,17 @@
 <form class="add" action="{% url 'tag' %}" method="POST">
     {% csrf_token %}
     <button name="add_url" type="submit" value="" title="Click here to favorite tags">TAG</button>
+</form>
+<br>
+SEARCH
+<form class="search" action="{% url 'search' %}" method="GET">
+    {% csrf_token %}
+    Title: <input type="text" placeholder="Fill Title Search.." name="title_search"><br>
+    URL: <input type="text" placeholder="Fill URL Search.." name="url_search"><br>
+    Category: <input type="text" placeholder="Fill CategorySearch.." name="category_search"><br>
+    Tag: <input type="text" placeholder="Fill Tag Search.." name="tag_search"><br>
+    Date: <input type="date" name="date_search" min="2000-01-01"><br>
+    Search <button type="submit"><i class="fa fa-search"></i></button>
 </form>
 <br>
 <table>

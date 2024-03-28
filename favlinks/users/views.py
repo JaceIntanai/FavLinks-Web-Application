@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import UserProfile, URL, Categorie, Tag
+import datetime
+from django.utils import timezone
 
 # Create your views here.
 
@@ -57,17 +59,20 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
 
-def dashboard(request):
-    urls = URL.objects.filter(user = request.user.id)
+def pagination(urls, page_number):
     paginator = Paginator(urls, 10)
-    page_number = request.GET.get('page')
     try:
         paginated_urls = paginator.page(page_number)
     except PageNotAnInteger:
         paginated_urls = paginator.page(1)
     except EmptyPage:
         paginated_urls = paginator.page(paginator.num_pages)
-    
+    return paginated_urls
+
+def dashboard(request):
+    urls = URL.objects.filter(user = request.user.id)
+    page_number = request.GET.get('page')
+    paginated_urls = pagination(urls=urls, page_number=page_number)
     return render(request, 'favlinks/dashboard.html', {
             'urls': paginated_urls,
         })
@@ -248,3 +253,33 @@ def delete_tag(request):
     tag =  Tag.objects.get(id = request.POST['tag_id'])
     tag.delete()
     return redirect('tag')
+
+def search(request):
+    if request.method == "GET":
+        title = request.GET['title_search']
+        url = request.GET['url_search']
+        category = request.GET['category_search']
+        tag = request.GET['tag_search']
+        date = request.GET['date_search']
+
+        user_profile = UserProfile.objects.get(id = request.user.id)
+        urls = URL.objects.filter(user = user_profile)
+        if title:
+            urls = urls.filter(title__contains = title)
+        if url:
+            urls = urls.filter(url__contains = url)
+        if category:
+            cate = Categorie.objects.filter(cate_name__contains=category, user=user_profile)
+            urls = urls.filter(categories__in = cate)
+        if tag:
+            tag = Tag.objects.filter(tag_name__contains=tag, user=user_profile)
+            urls = urls.filter(tags__in = tag, user=user_profile)
+        if date:
+            urls = urls.filter(create_dtm__gte = date)
+
+        page_number = request.GET.get('page')
+        paginated_urls = pagination(urls=urls, page_number=page_number)
+        return render(request, 'favlinks/dashboard.html', {
+                'urls': paginated_urls,
+            })
+    return redirect('dashboard')

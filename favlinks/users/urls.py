@@ -23,4 +23,5 @@ urlpatterns = [
     path('tag/edit/', views.edit_tag, name='edit_tag'),
     path('tag/edit/form/', views.edit_tag_detail, name='edit_tag_detail'),
     path('tag/delete/', views.delete_tag, name='delete_tag'),
+    path('search/', views.search, name='search'),
 ]
