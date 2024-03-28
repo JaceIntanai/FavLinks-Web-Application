@@ -1,5 +1,5 @@
 {% extends "registration/layout.html" %}
-{%block title %}ADD URL{% endblock%}
+{%block title %}ADD FAVORITE URL{% endblock%}
 {% block body %}
 <div>
     {% if messages %}
@@ -26,7 +26,7 @@
                 <option value="{{ tag }}">{{ tag }}</option>
             {% endfor %}
         </select><br>
-        <button type="submit">Add</button>
+        <button type="submit">CREATE</button>
     </form>
 </div>
 {% endblock %}

@@ -30,14 +30,12 @@
 <br>
 <table>
     <tr>
-        <th>ID</th>
         <th>Tag Name</th>
         <th>Edit</th>
         <th>Delete</th>
     </tr>
     {% for tag in tags%}
     <tr>
-        <td>{{ tag.id }}</td>
         <td>{{ tag.tag_name }}</td>
         <td>
             <form class="edit" action="{% url 'edit_tag_detail' %}" method="POST">

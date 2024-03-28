@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import UserProfile, URL, Categorie, Tag
 
 # Create your views here.
@@ -58,8 +59,17 @@ def logout_view(request):
 
 def dashboard(request):
     urls = URL.objects.filter(user = request.user.id)
+    paginator = Paginator(urls, 10)
+    page_number = request.GET.get('page')
+    try:
+        paginated_urls = paginator.page(page_number)
+    except PageNotAnInteger:
+        paginated_urls = paginator.page(1)
+    except EmptyPage:
+        paginated_urls = paginator.page(paginator.num_pages)
+    
     return render(request, 'favlinks/dashboard.html', {
-            'urls': urls,
+            'urls': paginated_urls,
         })
 
 def add_url_detail(request):
@@ -78,7 +88,6 @@ def add_url(request):
         categories = request.POST.getlist('categories')
         tags = request.POST.getlist('tags')
         user_profile = UserProfile.objects.get(id = request.user.id)
-        print(user_profile)
         new_url = URL.objects.create(title=title,url=url,user=user_profile)
         for categorie in categories:
             cate = Categorie.objects.get(cate_name = categorie)
@@ -95,7 +104,6 @@ def edit_url_detail(request):
         url = URL.objects.get(id = request.POST['edit_url'])
         categories = Categorie.objects.all()
         tags = Tag.objects.all()
-        print(request.POST['edit_url'])
         return render(request, 'favlinks/edit.html', {
             'url': url,
             'categories': categories,
