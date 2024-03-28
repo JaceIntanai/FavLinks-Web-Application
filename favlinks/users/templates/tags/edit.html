@@ -1,0 +1,22 @@
+{% extends "registration/layout.html" %}
+{%block title %}EDIT TAG{% endblock%}
+{% block body %}
+<div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color:red;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if message %}
+            <div style="color:red;">{{ message }}</div>
+    {% endif %}
+    <form action="{% url 'edit_tag' %}" method="POST" class="input-form" >
+        {% csrf_token %}
+        <label for="old_name">Tag Name:</label><br>
+        <input type="text" placeholder="your old tag name" id="old_name" name="old_name" value="{{ tags.tag_name }}" disabled><br>
+        <label for="new_name">New Tag Name:</label><br>
+        <input type="text" placeholder="fill your new tag name" id="name" name="name" required><br>
+        <button type="submit" name="tag_id" value="{{ tags.id }}">Edit</button>
+    </form>
+</div>
+{% endblock %}

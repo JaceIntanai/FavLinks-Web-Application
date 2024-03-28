@@ -58,27 +58,8 @@ def logout_view(request):
 
 def dashboard(request):
     urls = URL.objects.filter(user = request.user.id)
-    for url in urls:
-        print(url.categories.all())
-    categories = url.categories.all()
-    categories_show = ''
-    for i, cate in enumerate(categories):
-        if i != len(categories) -1 :
-            categories_show += str(cate) + ','
-        else:
-            categories_show += str(cate)
-    tags = url.tags.all()
-    tags_show = ''
-    for i, tag in enumerate(tags):
-        if i != len(tags) -1 :
-            tags_show += str(tag) + ','
-        else:
-            tags_show += str(tag)
     return render(request, 'favlinks/dashboard.html', {
-        'message': 'Dashboard',
-        'urls': urls,
-        'categories': categories_show,
-        'tags': tags_show,
+            'urls': urls,
         })
 
 def add_url_detail(request):
@@ -156,12 +137,25 @@ def index(request) :
     else :
         return dashboard(request=request)
     
+def category(request):
+    categories = Categorie.objects.filter(user = request.user.id)
+    return render(request, 'categories/category.html', {
+            'categories': categories,
+        })
+    
 def add_category(request):
     if request.method == 'POST':
         name = request.POST['name']
-        new_category = Categorie.objects.create(cate_name=name)
+        categories = Categorie.objects.all()
+        categories_name = [categorie.cate_name for categorie in categories]
+        if name in categories_name:
+            return render(request, 'categories/add.html', {
+                'message': f'This categorie name "{name}" already used',
+            })
+        user_profile = UserProfile.objects.get(id = request.user.id)
+        new_category = Categorie.objects.create(cate_name=name, user=user_profile)
         new_category.save()
-        return redirect('dashboard')
+        return redirect('category')
     return HttpResponseRedirect(reverse("dashboard"))
 
 def add_category_detail(request):
@@ -178,13 +172,13 @@ def edit_category(request):
             cate_update = Categorie.objects.get(id = request.POST['cate_id'])
             cate_update.cate_name = request.POST['name']
             cate_update.save()
-            return redirect('dashboard')
+            return redirect('category')
         else :
             return HttpResponseRedirect(reverse("dashboard"))
 
 def edit_category_detail(request):
     if request.method == "POST":
-        cate = Categorie.objects.get(id = request.POST['cate_id'])
+        cate = Categorie.objects.get(id = request.POST['edit_category'])
         return render(request, 'categories/edit.html', {
             'categories': cate,
         })
@@ -193,20 +187,33 @@ def edit_category_detail(request):
 def delete_category(request):
     cate =  Categorie.objects.get(id = request.POST['cate_id'])
     cate.delete()
-    return redirect('dashboard')
+    return redirect('category')
+
+def tag(request):
+    tags = Tag.objects.filter(user = request.user.id)
+    return render(request, 'tags/tag.html', {
+            'tags': tags,
+        })
 
 def add_tag(request):
     if request.method == 'POST':
         name = request.POST['name']
-        new_tag = Tag.objects.create(tag_name=name)
+        tags = Tag.objects.all()
+        tags_name = [tag.tag_name for tag in tags]
+        if name in tags_name:
+            return render(request, 'tags/add.html', {
+                'message': f'This tag name "{name}" already used',
+            })
+        user_profile = UserProfile.objects.get(id = request.user.id)
+        new_tag = Tag.objects.create(tag_name=name, user=user_profile)
         new_tag.save()
-        return redirect('dashboard')
+        return redirect('tag')
     return HttpResponseRedirect(reverse("dashboard"))
 
 def add_tag_detail(request):
     tags = Tag.objects.all()
     return render(request, 'tags/add.html', {
-        'categories': tags,
+        'tags': tags,
     })
 
 def edit_tag(request):
@@ -217,19 +224,19 @@ def edit_tag(request):
             tag_update = Tag.objects.get(id = request.POST['tag_id'])
             tag_update.cate_name = request.POST['name']
             tag_update.save()
-            return redirect('dashboard')
+            return redirect('tag')
         else :
             return HttpResponseRedirect(reverse("dashboard"))
 
 def edit_tag_detail(request):
     if request.method == "POST":
         tag = Tag.objects.get(id = request.POST['tag_id'])
-        return render(request, 'categories/edit.html', {
+        return render(request, 'tags/edit.html', {
             'tags': tag,
         })
     return HttpResponseRedirect(reverse("dashboard"))
 
-def delete_category(request):
+def delete_tag(request):
     tag =  Tag.objects.get(id = request.POST['tag_id'])
     tag.delete()
-    return redirect('dashboard')
+    return redirect('tag')

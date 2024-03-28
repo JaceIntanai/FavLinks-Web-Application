@@ -13,12 +13,14 @@ class UserProfile(models.Model):
     
 class Categorie(models.Model):
     cate_name = models.CharField(max_length=50)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return self.cate_name
 
 class Tag(models.Model):
     tag_name = models.CharField(max_length=50)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
     def __str__(self):
         return self.tag_name
 

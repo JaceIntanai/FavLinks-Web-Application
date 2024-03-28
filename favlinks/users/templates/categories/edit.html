@@ -1,0 +1,22 @@
+{% extends "registration/layout.html" %}
+{%block title %}EDIT CATEGORY{% endblock%}
+{% block body %}
+<div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color:red;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if message %}
+            <div style="color:red;">{{ message }}</div>
+    {% endif %}
+    <form action="{% url 'edit_category' %}" method="POST" class="input-form" >
+        {% csrf_token %}
+        <label for="old_name">Category Name:</label><br>
+        <input type="text" placeholder="your old category name" id="old_name" name="old_name" value="{{ categories.cate_name }}" disabled><br>
+        <label for="new_name">New Category Name:</label><br>
+        <input type="text" placeholder="fill your new category name" id="name" name="name" required><br>
+        <button type="submit" name="cate_id" value="{{ categories.id }}">Edit</button>
+    </form>
+</div>
+{% endblock %}

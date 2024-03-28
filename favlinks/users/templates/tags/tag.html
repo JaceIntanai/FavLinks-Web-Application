@@ -1,0 +1,59 @@
+{% extends "registration/layout.html" %}
+{% block head %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+</style>
+{% endblock %}
+{%block title %}TAG{% endblock%}
+{% block body %}
+{% if message %}
+    <div>{{ message }}</div>
+{% endif %}
+<form class="add" action="{% url 'add_tag_detail' %}" method="POST">
+    {% csrf_token %}
+    <button name="add_tag" type="submit" value="" title="Click here to create new tag">ADD TAG</button>
+</form><br>
+<br>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Tag Name</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    {% for tag in tags%}
+    <tr>
+        <td>{{ tag.id }}</td>
+        <td>{{ tag.tag_name }}</td>
+        <td>
+            <form class="edit" action="{% url 'edit_tag_detail' %}" method="POST">
+                {% csrf_token %}
+                <button name="tag_id" type="submit" value="{{ tag.id }}" title="Click here to edit ">EDIT</button>
+            </form>
+        </td>
+        <td>
+            <form class="delete" action="{% url 'delete_tag' %}" method="POST">
+                {% csrf_token %}
+                <button name="tag_id" type="submit" value="{{ tag.id }}" title="Click here to delete ">DELETE</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

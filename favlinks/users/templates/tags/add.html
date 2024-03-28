@@ -1,5 +1,5 @@
 {% extends "registration/layout.html" %}
-{%block title %}ADD CATEGORY{% endblock%}
+{%block title %}ADD TAG{% endblock%}
 {% block body %}
 <div>
     {% if messages %}
@@ -10,10 +10,10 @@
     {% if message %}
             <div style="color:red;">{{ message }}</div>
     {% endif %}
-    <form action="{% url 'add_category' %}" method="POST" class="input-form" >
+    <form action="{% url 'add_tag' %}" method="POST" class="input-form" >
         {% csrf_token %}
-        <label for="name">Category Name:</label><br>
-        <input type="text" placeholder="fill your category name" id="name" name="name" required><br>
+        <label for="name">Tag Name:</label><br>
+        <input type="text" placeholder="fill your tag name" id="name" name="name" required><br>
         <button type="submit">Add</button>
     </form>
 </div>

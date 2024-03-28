@@ -1,0 +1,59 @@
+{% extends "registration/layout.html" %}
+{% block head %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+</style>
+{% endblock %}
+{%block title %}CATEGORY{% endblock%}
+{% block body %}
+{% if message %}
+    <div>{{ message }}</div>
+{% endif %}
+<form class="add" action="{% url 'add_category_detail' %}" method="POST">
+    {% csrf_token %}
+    <button name="add_cate" type="submit" value="" title="Click here to create new category">ADD CATEGORY</button>
+</form><br>
+<br>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Category Name</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    {% for category in categories%}
+    <tr>
+        <td>{{ category.id }}</td>
+        <td>{{ category.cate_name }}</td>
+        <td>
+            <form class="edit" action="{% url 'edit_category_detail' %}" method="POST">
+                {% csrf_token %}
+                <button name="edit_category" type="submit" value="{{ category.id }}" title="Click here to edit ">EDIT</button>
+            </form>
+        </td>
+        <td>
+            <form class="delete" action="{% url 'delete_category' %}" method="POST">
+                {% csrf_token %}
+                <button name="delete_category_id" type="submit" value="{{ category.id }}" title="Click here to delete ">DELETE</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
