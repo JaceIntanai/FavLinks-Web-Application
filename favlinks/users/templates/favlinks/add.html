@@ -1,4 +1,8 @@
 {% extends "registration/layout.html" %}
+{% block head %}
+<style>
+</style>
+{% endblock %}
 {%block title %}ADD FAVORITE URL{% endblock%}
 {% block body %}
 <div>
@@ -16,11 +20,13 @@
         <input type="text" placeholder="fill your title name" id="title" name="title" required><br>
         <label for="url">URL:</label><br>
         <input type="url" placeholder="fill your URL" id="url" name="url" required><br>
+        Category: (You can select multiple choices)
         <select name="categories" id="categories" multiple="multiple">
             {% for categorie in categories %}
                 <option value="{{ categorie }}">{{ categorie }}</option>
             {% endfor %}
         </select><br>
+        Tag: (You can select multiple choices)
         <select name="tags" id="tags" multiple="multiple">
             {% for tag in tags %}
                 <option value="{{ tag }}">{{ tag }}</option>

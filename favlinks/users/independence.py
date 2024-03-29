@@ -7,7 +7,7 @@ def validate_urls():
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
     for url in urls:
         try:
-            response = requests.get(url.url, headers=headers, timeout=(0.5, None))
+            response = requests.get(url.url, headers=headers, timeout=(5, None))
 
             if response.status_code == 200:
                 url.url_validate = True
