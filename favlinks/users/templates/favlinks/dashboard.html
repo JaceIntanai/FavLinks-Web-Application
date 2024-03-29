@@ -53,6 +53,7 @@ SEARCH
 <table>
     <tr>
         <th>Favorites URL</th>
+        <th>Valid</th>
         <th>Title</th>
         <th>Categories</th>
         <th>Tags</th>
@@ -62,6 +63,11 @@ SEARCH
     {% for url in urls%}
     <tr>
         <td><a href="{{ url.url }}">{{ url.url }}</a></td>
+        {% if url.url_validate %}
+        <td>&#10003;</td>
+        {% else %}
+        <td>&#10005;</td>
+        {% endif %}
         <td>{{ url.title }}</td>
         <td>
             {% for categorie in url.categories.all %}

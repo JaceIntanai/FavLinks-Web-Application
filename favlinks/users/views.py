@@ -7,8 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import UserProfile, URL, Categorie, Tag
-import datetime
-from django.utils import timezone
+from .independence import validate_url, validate_urls
 
 # Create your views here.
 
@@ -70,6 +69,7 @@ def pagination(urls, page_number):
     return paginated_urls
 
 def dashboard(request):
+    validate_urls()
     urls = URL.objects.filter(user = request.user.id)
     page_number = request.GET.get('page')
     paginated_urls = pagination(urls=urls, page_number=page_number)
@@ -127,7 +127,15 @@ def edit_url(request):
             tags = request.POST.getlist('tags')
             url_update = URL.objects.get(id = request.POST['edit_url_id'])
             url_update.title = title
-            url_update.url = url
+            if validate_url(url):
+                url_update.url = url
+            else:
+                return render(request, 'favlinks/edit.html', {
+                    'url': url_update,
+                    'categories': Categorie.objects.all(),
+                    'tags': Tag.objects.all(),
+                    'message': 'This URL not validate please try again!'
+                })
             for categorie in categories:
                 cate = Categorie.objects.get(cate_name = categorie)
                 url_update.categories.add(cate)

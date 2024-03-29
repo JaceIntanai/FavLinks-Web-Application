@@ -27,10 +27,12 @@ class Tag(models.Model):
 class URL(models.Model):
     title = models.CharField(max_length=255)
     url = models.URLField()
+    url_validate = models.BooleanField(default=True)
+    url_check_dtm = models.DateTimeField(default=timezone.now)
     categories = models.ManyToManyField(Categorie, blank=True, related_name='urls')
     tags = models.ManyToManyField(Tag, blank=True, related_name='urls')
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,null=True,blank=True)
     create_dtm = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.title} : {self.url} {self.create_dtm}"
+        return f"{self.id} {self.title} : {self.url} {self.url_validate} {self.url_check_dtm} {self.create_dtm}"
