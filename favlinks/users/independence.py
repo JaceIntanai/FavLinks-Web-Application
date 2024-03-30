@@ -2,8 +2,8 @@ from django.utils import timezone
 from .models import UserProfile, URL, Categorie, Tag
 import requests
 
-def validate_urls():
-    urls = URL.objects.all()
+def validate_urls(user_profile):
+    urls = URL.objects.filter(user=user_profile)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
     for url in urls:
         try:

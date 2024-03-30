@@ -10,8 +10,8 @@ from .independence import validate_url, validate_urls
 
 # Create your views here.
 def dashboard(request):
-    validate_urls()
     user_profile = UserProfile.objects.get(username = request.user.username)
+    validate_urls(user_profile)
     urls = URL.objects.filter(user = user_profile)
     page_number = request.GET.get('page')
     paginated_urls = pagination(urls=urls, page_number=page_number)
