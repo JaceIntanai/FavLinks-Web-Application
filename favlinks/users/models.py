@@ -9,7 +9,7 @@ class UserProfile(models.Model):
     create_dtm = models.DateTimeField(default=timezone.now)
 
     def __str__(self) :
-        return f"{self.username} : {self.first_name} {self.last_name} {self.e_mail} {self.create_dtm}"
+        return f"{self.id} {self.username} : {self.first_name} {self.last_name} {self.e_mail} {self.create_dtm}"
     
 class Categorie(models.Model):
     cate_name = models.CharField(max_length=50)

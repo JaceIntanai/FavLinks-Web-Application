@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
@@ -10,6 +9,15 @@ from .models import UserProfile, URL, Categorie, Tag
 from .independence import validate_url, validate_urls
 
 # Create your views here.
+def dashboard(request):
+    validate_urls()
+    user_profile = UserProfile.objects.get(username = request.user.username)
+    urls = URL.objects.filter(user = user_profile)
+    page_number = request.GET.get('page')
+    paginated_urls = pagination(urls=urls, page_number=page_number)
+    return render(request, 'favlinks/dashboard.html', {
+            'urls': paginated_urls,
+        })
 
 def register(request) :
     if request.method == "POST" :
@@ -42,21 +50,25 @@ def register(request) :
         else :
             return render(request, 'registration/register.html', {'message': 'Please Complete Registration Form.'})
         
-    return render(request, 'registration/register.html', {'message': 'Try Again!'})
+    return render(request, 'registration/register.html')
 
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        auth_user = authenticate(request, username=username, password=password)
-        if auth_user is not None:
-            login(request, auth_user)
-            return redirect('dashboard')
-    return render(request, 'registration/login.html')
+    if request.user.is_authenticated :
+        return redirect("dashboard")
+    else:
+        if request.method == 'POST':
+            username = request.POST['username']
+            password = request.POST['password']
+            auth_user = authenticate(request, username=username, password=password)
+            if auth_user is not None:
+                login(request, auth_user)
+                return redirect("dashboard")
+                
+        return render(request, 'registration/login.html')
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("login"))
+    return redirect("login")
 
 def pagination(urls, page_number):
     paginator = Paginator(urls, 10)
@@ -67,15 +79,6 @@ def pagination(urls, page_number):
     except EmptyPage:
         paginated_urls = paginator.page(paginator.num_pages)
     return paginated_urls
-
-def dashboard(request):
-    validate_urls()
-    urls = URL.objects.filter(user = request.user.id)
-    page_number = request.GET.get('page')
-    paginated_urls = pagination(urls=urls, page_number=page_number)
-    return render(request, 'favlinks/dashboard.html', {
-            'urls': paginated_urls,
-        })
 
 def add_url_detail(request):
     categories = Categorie.objects.all()
@@ -92,13 +95,13 @@ def add_url(request):
         url = request.POST['url']
         categories = request.POST.getlist('categories')
         tags = request.POST.getlist('tags')
-        user_profile = UserProfile.objects.get(id = request.user.id)
+        user_profile = UserProfile.objects.get(username = request.user.username)
         new_url = URL.objects.create(title=title,url=url,user=user_profile)
         for categorie in categories:
-            cate = Categorie.objects.get(cate_name = categorie)
+            cate = Categorie.objects.get(cate_name = categorie, user=user_profile)
             new_url.categories.add(cate)
         for tag in tags:
-            tag_s = Tag.objects.get(tag_name = tag)
+            tag_s = Tag.objects.get(tag_name = tag, user=user_profile)
             new_url.tags.add(tag_s)
         new_url.save()
         return redirect('dashboard')
@@ -114,11 +117,11 @@ def edit_url_detail(request):
             'categories': categories,
             'tags': tags
         })
-    return HttpResponseRedirect(reverse("dashboard"))
+    return redirect("dashboard")
 
 def edit_url(request):
     if not request.user.is_authenticated :
-        return HttpResponseRedirect(reverse("login"))
+        return redirect("login")
     else :
         if request.method == "POST":
             title = request.POST['title']
@@ -145,7 +148,7 @@ def edit_url(request):
             url_update.save()
             return redirect('dashboard')
         else :
-            return HttpResponseRedirect(reverse("dashboard"))
+            return redirect("dashboard")
             
 def delete_url(request):
     url = URL.objects.get(id = request.POST['delete_url_id'])
@@ -154,12 +157,13 @@ def delete_url(request):
             
 def index(request) :
     if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("login"))
+        return redirect("login")
     else :
         return dashboard(request=request)
     
 def category(request):
-    categories = Categorie.objects.filter(user = request.user.id)
+    user_profile = UserProfile.objects.get(username = request.user.username)
+    categories = Categorie.objects.filter(user = user_profile)
     return render(request, 'categories/category.html', {
             'categories': categories,
         })
@@ -167,17 +171,17 @@ def category(request):
 def add_category(request):
     if request.method == 'POST':
         name = request.POST['name']
-        categories = Categorie.objects.all()
+        user_profile = UserProfile.objects.get(username = request.user.username)
+        categories = Categorie.objects.filter(user=user_profile)
         categories_name = [categorie.cate_name for categorie in categories]
         if name in categories_name:
             return render(request, 'categories/add.html', {
                 'message': f'This categorie name "{name}" already used',
             })
-        user_profile = UserProfile.objects.get(id = request.user.id)
         new_category = Categorie.objects.create(cate_name=name, user=user_profile)
         new_category.save()
         return redirect('category')
-    return HttpResponseRedirect(reverse("dashboard"))
+    return redirect("dashboard")
 
 def add_category_detail(request):
     categories = Categorie.objects.all()
@@ -187,7 +191,7 @@ def add_category_detail(request):
 
 def edit_category(request):
     if not request.user.is_authenticated :
-        return HttpResponseRedirect(reverse("login"))
+        return redirect("login")
     else :
         if request.method == "POST":
             cate_update = Categorie.objects.get(id = request.POST['cate_id'])
@@ -195,7 +199,7 @@ def edit_category(request):
             cate_update.save()
             return redirect('category')
         else :
-            return HttpResponseRedirect(reverse("dashboard"))
+            return redirect("dashboard")
 
 def edit_category_detail(request):
     if request.method == "POST":
@@ -203,7 +207,7 @@ def edit_category_detail(request):
         return render(request, 'categories/edit.html', {
             'categories': cate,
         })
-    return HttpResponseRedirect(reverse("dashboard"))
+    return redirect("dashboard")
 
 def delete_category(request):
     cate =  Categorie.objects.get(id = request.POST['cate_id'])
@@ -211,7 +215,8 @@ def delete_category(request):
     return redirect('category')
 
 def tag(request):
-    tags = Tag.objects.filter(user = request.user.id)
+    user_profile = UserProfile.objects.get(username = request.user.username)
+    tags = Tag.objects.filter(user = user_profile)
     return render(request, 'tags/tag.html', {
             'tags': tags,
         })
@@ -219,17 +224,17 @@ def tag(request):
 def add_tag(request):
     if request.method == 'POST':
         name = request.POST['name']
-        tags = Tag.objects.all()
+        user_profile = UserProfile.objects.get(username = request.user.username)
+        tags = Tag.objects.filter(user = user_profile)
         tags_name = [tag.tag_name for tag in tags]
         if name in tags_name:
             return render(request, 'tags/add.html', {
                 'message': f'This tag name "{name}" already used',
             })
-        user_profile = UserProfile.objects.get(id = request.user.id)
         new_tag = Tag.objects.create(tag_name=name, user=user_profile)
         new_tag.save()
         return redirect('tag')
-    return HttpResponseRedirect(reverse("dashboard"))
+    return redirect("dashboard")
 
 def add_tag_detail(request):
     tags = Tag.objects.all()
@@ -239,7 +244,7 @@ def add_tag_detail(request):
 
 def edit_tag(request):
     if not request.user.is_authenticated :
-        return HttpResponseRedirect(reverse("login"))
+        return redirect("login")
     else :
         if request.method == "POST":
             tag_update = Tag.objects.get(id = request.POST['tag_id'])
@@ -247,7 +252,7 @@ def edit_tag(request):
             tag_update.save()
             return redirect('tag')
         else :
-            return HttpResponseRedirect(reverse("dashboard"))
+            return redirect("dashboard")
 
 def edit_tag_detail(request):
     if request.method == "POST":
@@ -255,7 +260,7 @@ def edit_tag_detail(request):
         return render(request, 'tags/edit.html', {
             'tags': tag,
         })
-    return HttpResponseRedirect(reverse("dashboard"))
+    return redirect("dashboard")
 
 def delete_tag(request):
     tag =  Tag.objects.get(id = request.POST['tag_id'])
@@ -270,7 +275,7 @@ def search(request):
         tag = request.GET['tag_search']
         date = request.GET['date_search']
 
-        user_profile = UserProfile.objects.get(id = request.user.id)
+        user_profile = UserProfile.objects.get(username = request.user.username)
         urls = URL.objects.filter(user = user_profile)
         if title:
             urls = urls.filter(title__contains = title)
